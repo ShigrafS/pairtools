@@ -490,16 +490,17 @@ def dedup_py(
     
     # Canonicalize column names for flexible matching
     column_names = headerops.extract_column_names(header)
-    column_names = headerops.canonicalize_columns(column_names)
+    # Ensure all columns are standardized before lookup
+    column_names = [headerops.standardize_column(c) for c in column_names]
     
     # Get column indices with fallbacks
     try:
-        col1 = headerops.get_column_index(column_names, c1)
-        col2 = headerops.get_column_index(column_names, c2)
-        colp1 = headerops.get_column_index(column_names, p1)
-        colp2 = headerops.get_column_index(column_names, p2)
-        cols1 = headerops.get_column_index(column_names, s1)
-        cols2 = headerops.get_column_index(column_names, s2)
+        col_c1 = headerops.get_column_index(column_names, c1)
+        col_c2 = headerops.get_column_index(column_names, c2)
+        col_p1 = headerops.get_column_index(column_names, p1)
+        col_p2 = headerops.get_column_index(column_names, p2)
+        col_s1 = headerops.get_column_index(column_names, s1)
+        col_s2 = headerops.get_column_index(column_names, s2)
         
         # Handle extra column pairs
         extra_cols1 = []
@@ -537,12 +538,12 @@ def dedup_py(
             method,
             max_mismatch,
             sep,
-            col1,
-            col2,
-            colp1,
-            colp2,
-            cols1,
-            cols2,
+            col_c1,
+            col_c2,
+            col_p1,
+            col_p2,
+            col_s1,
+            col_s2,
             extra_cols1,
             extra_cols2,
             unmapped_chrom,
@@ -572,12 +573,12 @@ def dedup_py(
             out_stat=out_stat,
             backend=backend,
             n_proc=n_proc,
-            c1=col1,
-            c2=col2,
-            p1=colp1,
-            p2=colp2,
-            s1=cols1,
-            s2=cols2,
+            c1=col_c1,
+            c2=col_c2,
+            p1=col_p1,
+            p2=col_p2,
+            s1=col_s1,
+            s2=col_s2,
         )
     else:
         raise ValueError("Unknown backend")
