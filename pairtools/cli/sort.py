@@ -192,20 +192,21 @@ def sort_py(
             compress_program = "gzip"
 
     column_names = headerops.extract_column_names(header)
-    column_names = headerops.canonicalize_columns(column_names)
+    # Ensure all columns are standardized before lookup
+    column_names = [headerops.standardize_column(c) for c in column_names]
 
     # Get column indices with fallbacks
     try:
-        col1 = headerops.get_column_index(column_names, c1)
-        col2 = headerops.get_column_index(column_names, c2)
-        colp1 = headerops.get_column_index(column_names, p1)
-        colp2 = headerops.get_column_index(column_names, p2)
+        col_c1 = headerops.get_column_index(column_names, c1)
+        col_c2 = headerops.get_column_index(column_names, c2)
+        col_p1 = headerops.get_column_index(column_names, p1)
+        col_p2 = headerops.get_column_index(column_names, p2)
         
         # Make pair_type optional
         try:
-            colpt = headerops.get_column_index(column_names, pt) if pt else None
+            col_pt = headerops.get_column_index(column_names, pt) if pt else None
         except ValueError:
-            colpt = None
+            col_pt = None
             
         extra_cols = []
         for col in extra_col:
@@ -219,7 +220,7 @@ def sort_py(
 
     # Generate sort command columns
     cols = []
-    for i, col in enumerate([col1, colp1, col2, colp2, colpt] + extra_cols):
+    for i, col in enumerate([col_c1, col_p1, col_c2, col_p2, col_pt] + extra_cols):
         if col is None:
             continue  # Skip optional columns that weren't found
         dtype = pairsam_format.DTYPES_PAIRSAM.get(column_names[col], str)
